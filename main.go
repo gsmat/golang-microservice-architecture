@@ -12,18 +12,22 @@ import (
 
 func main() {
 	l := log.New(os.Stdout, "product-api ", log.LstdFlags)
-	helloHandler := handlers.NewHello(l)
-	goodByeHandler := handlers.NewGoodBye(l)
+	//helloHandler := handlers.NewHello(l)
+	//goodByeHandler := handlers.NewGoodBye(l)
+
+	productsHandler := handlers.NewProducts(l)
 
 	serveMux := http.NewServeMux()
-	serveMux.Handle("/", helloHandler)
-	serveMux.Handle("/good-bye", goodByeHandler)
+	//serveMux.Handle("/", helloHandler)
+	//serveMux.Handle("/good-bye", goodByeHandler)
+	serveMux.Handle("/products", productsHandler)
 
 	log.Println("Starting server on :9090")
 
 	server := http.Server{
 		Addr:         ":9090",
 		Handler:      serveMux,
+		ErrorLog:     l,
 		IdleTimeout:  120 * time.Second,
 		ReadTimeout:  1 * time.Second,
 		WriteTimeout: 1 * time.Second,
@@ -40,8 +44,8 @@ func main() {
 	signal.Notify(signalChannel, os.Interrupt)
 	signal.Notify(signalChannel, os.Kill)
 
-	signal := <-signalChannel
-	log.Println("Got signal:", signal)
+	sgnl := <-signalChannel
+	log.Println("Got signal:", sgnl)
 
 	tc, _ := context.WithTimeout(context.Background(), 30*time.Second)
 	server.Shutdown(tc)
